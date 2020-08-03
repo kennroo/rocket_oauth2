@@ -496,6 +496,7 @@ pub trait Adapter: Send + Sync + 'static {
         config: &OAuthConfig,
         state: &str,
         scopes: &[&str],
+        duration: &str,
     ) -> Result<Absolute<'static>, Error>;
 
     /// Perform the token exchange in accordance with RFC 6749 §4.1.3 given the
@@ -618,7 +619,7 @@ impl<K: 'static> OAuth2<K> {
         let uri = self
             .0
             .adapter
-            .authorization_uri(&self.0.config, &state, scopes)?;
+            .authorization_uri(&self.0.config, &state, scopes, "permanent")?;
         cookies.add_private(
             Cookie::build(STATE_COOKIE_NAME, state)
                 .same_site(SameSite::Lax)

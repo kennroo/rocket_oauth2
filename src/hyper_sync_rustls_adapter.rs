@@ -2,7 +2,7 @@ use std::convert::TryInto;
 use std::io::Read;
 
 use hyper::{
-    header::{Accept, ContentType},
+    header::{Authorization, Basic, Accept, ContentType},
     net::HttpsConnector,
     Client,
 };
@@ -23,6 +23,7 @@ impl Adapter for HyperSyncRustlsAdapter {
         config: &OAuthConfig,
         state: &str,
         scopes: &[&str],
+        duration: &str,
     ) -> Result<Absolute<'static>, Error> {
         let auth_uri = config.provider().auth_uri();
 
@@ -32,7 +33,8 @@ impl Adapter for HyperSyncRustlsAdapter {
         url.query_pairs_mut()
             .append_pair("response_type", "code")
             .append_pair("client_id", config.client_id())
-            .append_pair("state", state);
+            .append_pair("state", state)
+            .append_pair("duration",duration);
 
         if let Some(redirect_uri) = config.redirect_uri() {
             url.query_pairs_mut().append_pair("redirect_uri", redirect_uri);
@@ -59,25 +61,32 @@ impl Adapter for HyperSyncRustlsAdapter {
         let mut ser = UrlSerializer::new(String::new());
         match token {
             TokenRequest::AuthorizationCode(code) => {
+                ser.append_pair("redirect_uri", "http://localhost:8000/auth/reddit");
                 ser.append_pair("grant_type", "authorization_code");
                 ser.append_pair("code", &code);
-                if let Some(redirect_uri) = config.redirect_uri() {
-                    ser.append_pair("redirect_uri", redirect_uri);
-                }
+                //if let Some(redirect_uri) = config.redirect_uri() {
+                  //  ser.append_pair("redirect_uri", redirect_uri);
+                //}
             }
             TokenRequest::RefreshToken(token) => {
-                ser.append_pair("grant_type", "refresh_token");
+                ser.append_pair("grant_type", "authorization_code");
                 ser.append_pair("refresh_token", &token);
             }
         }
-        ser.append_pair("client_id", config.client_id());
-        ser.append_pair("client_secret", config.client_secret());
+        //ser.append_pair("client_id", config.client_id());
+        //ser.append_pair("client_secret", config.client_secret());
 
         let req_str = ser.finish();
+
+	let credentials = Basic {
+                        username: config.client_id().to_string(),
+                        password: Some(config.client_secret().to_string())
+                };
 
         let request = client
             .post(config.provider().token_uri().as_ref())
             .header(Accept::json())
+            .header(Authorization(credentials))
             .header(ContentType::form_url_encoded())
             .body(&req_str);
 
