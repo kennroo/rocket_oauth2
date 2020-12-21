@@ -61,7 +61,7 @@ impl Adapter for HyperSyncRustlsAdapter {
         let mut ser = UrlSerializer::new(String::new());
         match token {
             TokenRequest::AuthorizationCode(code) => {
-                ser.append_pair("redirect_uri", "http://localhost:8000/auth/reddit");
+                ser.append_pair("redirect_uri", "https://aggierisk.com/auth/reddit");
                 ser.append_pair("grant_type", "authorization_code");
                 ser.append_pair("code", &code);
                 //if let Some(redirect_uri) = config.redirect_uri() {

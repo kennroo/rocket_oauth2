@@ -24,6 +24,7 @@ rand = { version = "0.7", default-features = false, features = ["std"] }
 rocket = { version = "0.4", default-features = false, features = ["private-cookies"] }
 serde_json = "1.0"
 url = "2.0"
+dotenv = "*"
 
 # hyper-sync-rustls adapter
 hyper = { version = "0.10", optional = true }

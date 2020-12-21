@@ -456,7 +456,7 @@ impl<'a, 'r, K: 'static> FromRequest<'a, 'r> for TokenResponse<K> {
                 }
             }
         }
-
+       
         // Have the adapter perform the token exchange.
         match oauth2
             .adapter
